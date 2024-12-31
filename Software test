@@ -1,0 +1,71 @@
+import os
+import shutil
+import py7zr  # Install using pip `pip install py7zr`
+
+# Function to extract .rar file
+def extract_rar(input_rar, output_dir):
+    try:
+        with py7zr.SevenZipFile(input_rar, mode='r') as archive:
+            archive.extractall(path=output_dir)
+        print(f"Extracted {input_rar} to {output_dir}")
+    except Exception as e:
+        print(f"Error extracting {input_rar}: {str(e)}")
+
+# Function to convert mod files to Switch-compatible structure
+def prepare_for_switch(input_dir, output_dir):
+    try:
+        # Assuming mods are in specific directories (replace these as needed)
+        mod_output_dir = os.path.join(output_dir, 'content')
+        if not os.path.exists(mod_output_dir):
+            os.makedirs(mod_output_dir)
+
+        # Example: Move files and adjust paths, you may need custom code for this
+        for file_name in os.listdir(input_dir):
+            file_path = os.path.join(input_dir, file_name)
+            if os.path.isdir(file_path):
+                shutil.copytree(file_path, os.path.join(mod_output_dir, file_name))
+            else:
+                shutil.copy(file_path, mod_output_dir)
+        
+        print(f"Prepared mod files for Switch in {mod_output_dir}")
+    except Exception as e:
+        print(f"Error preparing for Switch: {str(e)}")
+
+# Function to create a .cpk file (this part will need a specific tool or library)
+def create_cpk(output_dir, cpk_file_name):
+    try:
+        # Use a tool like CPKTool or Xenoverse modding tool to create .cpk
+        # Example of creating a .cpk using command-line tool (you can modify this)
+        os.system(f"CPKTool.exe pack {output_dir} {cpk_file_name}")
+        print(f"Created .cpk file: {cpk_file_name}")
+    except Exception as e:
+        print(f"Error creating .cpk: {str(e)}")
+
+# Main function to convert .rar to .cpk
+def convert_mod(input_rar, output_dir):
+    try:
+        # Step 1: Extract .rar file
+        temp_dir = os.path.join(output_dir, 'temp_mod')
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+        
+        extract_rar(input_rar, temp_dir)
+        
+        # Step 2: Prepare files for Switch (restructure them if needed)
+        prepare_for_switch(temp_dir, output_dir)
+        
+        # Step 3: Create .cpk from prepared files (use CPK tool or custom method)
+        cpk_file_name = os.path.join(output_dir, 'mod.cpk')
+        create_cpk(output_dir, cpk_file_name)
+        
+        # Cleanup temp files
+        shutil.rmtree(temp_dir)
+        print(f"Mod conversion completed and .cpk file created at {cpk_file_name}")
+    
+    except Exception as e:
+        print(f"Error during mod conversion: {str(e)}")
+
+if __name__ == '__main__':
+    input_rar = "path_to_mod.rar"  # Path to the .rar mod file
+    output_dir = "path_to_output"  # Path where the .cpk file should be saved
+    convert_mod(input_rar, output_dir)
